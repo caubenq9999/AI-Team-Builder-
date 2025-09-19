@@ -1,0 +1,10 @@
+pandas
+scikit-learn
+matplotlib
+seaborn
+emoji
+torch
+transformers
+sentence-transformers
+pyyaml
+gradio

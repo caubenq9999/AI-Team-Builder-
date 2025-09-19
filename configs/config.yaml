@@ -1,0 +1,43 @@
+# ===================================================================
+#             Configuration File for MBTI Prediction Project
+# ===================================================================
+# This file centralizes all parameters for the project, ensuring
+# reproducibility and easy experimentation.
+# -------------------------------------------------------------------
+
+# --- Project & Model Information ---
+project:
+  task: "MBTI Prediction"
+  # Seed for all random processes to ensure results are reproducible.
+  random_state: 42
+
+model:
+  # Name of the Sentence Transformer model used for text embedding.
+  embedding_model_name: "sentence-transformers/all-MiniLM-L6-v2"
+
+# --- Data Handling ---
+data:
+  # Path to the raw dataset file.
+  path: "data/mbti.csv"
+  # Ratio to split the dataset into train, validation, and test sets.
+  split_ratio: [0.8, 0.1, 0.1] # [train, valid, test]
+
+# --- Preprocessing Steps ---
+# These flags control the text normalization process.
+preprocess:
+  lower: true                 # Convert text to lowercase.
+  normalize_url: true         # Replace URLs with a special token.
+  normalize_user: true        # Replace user mentions (@username) with a token.
+  normalize_num: true         # Replace numbers with a token.
+  demojize: true              # Convert emojis to their text descriptions (e.g., 😊 -> :smiling_face:).
+
+# --- Classifier Configuration ---
+# Parameters for the Logistic Regression model used for classification.
+classifier:
+  # Type of classifier. Currently using Logistic Regression.
+  type: "logreg"
+  # Maximum number of iterations for the solver to converge.
+  max_iter: 2000
+  # Automatically adjust weights inversely proportional to class frequencies.
+  # Useful for imbalanced datasets.
+  class_weight: "balanced"
