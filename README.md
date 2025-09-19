@@ -30,7 +30,7 @@ source .venv/bin/activate
 # Install the required libraries:
 Note: Ensure you have a requirements.txt file. If not, run pip freeze > requirements.txt in your activated virtual environment after installing gradio, pandas, joblib, sentence-transformers, scikit-learn, torch, and emoji.
 pip install -r requirements.txt
-#How to Use
+# How to Use
 # Re-train the models (Optional):
 Open and run the notebooks/notebook.ipynb file.
 This process will re-train the 4 LogisticRegression models from scratch and save them to the models/ directory. You only need to do this if you want to train on new data.
