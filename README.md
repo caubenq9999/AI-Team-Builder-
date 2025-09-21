@@ -18,26 +18,36 @@ Python 3.10+
 Libraries listed in requirements.txt
 # Installation Guide
 Clone this repository to your machine:
+```
 git clone [YOUR_REPO_URL]
 cd [REPO_NAME]
+```
 # Create and activate a virtual environment:
 # Create virtual environment
+```
 python -m venv .venv
+```
 # Activate on Windows (PowerShell)
-..venv\Scripts\Activate.ps1
+```
+.\.venv\Scripts\activate
+```
 # Activate on macOS/Linux
+```
 source .venv/bin/activate
+```
 # Install the required libraries:
-Note: Ensure you have a requirements.txt file. If not, run pip freeze > requirements.txt in your activated virtual environment after installing gradio, pandas, joblib, sentence-transformers, scikit-learn, torch, and emoji.
+Note: Ensure you have a requirements.txt file. If not, run ```pip freeze > requirements.txt``` in your activated virtual environment after installing gradio, pandas, joblib, sentence-transformers, scikit-learn, torch, and emoji.
 pip install -r requirements.txt
-#How to Use
+# How to Use
 # Re-train the models (Optional):
 Open and run the notebooks/notebook.ipynb file.
 This process will re-train the 4 LogisticRegression models from scratch and save them to the models/ directory. You only need to do this if you want to train on new data.
 # Run the Web Application:
 Open a terminal in the project's root directory.
 Run the command:
+```
 python app.py
+```
 Open your browser and navigate to the local URL provided (usually http://127.0.0.1:7860).
 # 📜 Ethical Considerations
 Reference Tool: This application should only be considered a reference tool to suggest ideas and spark discussion.
