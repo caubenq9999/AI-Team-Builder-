@@ -29,7 +29,7 @@ python -m venv .venv
 ```
 # Activate on Windows (PowerShell)
 ```
-..venv\Scripts\Activate.ps1
+.\.venv\Scripts\activate
 ```
 # Activate on macOS/Linux
 ```
