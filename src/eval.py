@@ -1,10 +1,15 @@
-# src/eval.py
 import json
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 from sklearn.calibration import calibration_curve
 from sklearn.metrics import ConfusionMatrixDisplay, classification_report
+
+# --- THÊM CÁC THƯ VIỆN CẦN THIẾT ---
+import joblib
+from sentence_transformers import SentenceTransformer
+from src.data import load_datasets
+
 
 def plot_calibration_curve(y_true, y_prob, title="Calibration Curve"):
     """Vẽ biểu đồ calibration (reliability diagram)."""
@@ -24,10 +29,77 @@ def plot_calibration_curve(y_true, y_prob, title="Calibration Curve"):
     plt.grid(True)
     plt.show()
 
+# --- HÀM PHÂN TÍCH LỖI MỚI (TÍCH HỢP TỪ ERROR_ANALYSIS.PY) ---
+def perform_error_analysis(num_errors_to_show=15):
+    """
+    Tải model, chạy dự đoán trên tập test và lọc ra các mẫu bị dự đoán sai.
+    """
+    print("\n" + "="*50)
+    print("BẮT ĐẦU PHÂN TÍCH LỖI DỰ ĐOÁN END-TO-END")
+    print("="*50)
+
+    # --- 1. Tải các model cần thiết ---
+    print("Đang tải các model cần thiết cho phân tích lỗi...")
+    encoder_model = SentenceTransformer('sentence-transformers/all-MiniLM-L6-v2')
+    classifiers = {}
+    dimensions = ["IE", "NS", "TF", "JP"]
+    label_map = {
+        "IE": {0: "I", 1: "E"}, "NS": {0: "N", 1: "S"},
+        "TF": {0: "T", 1: "F"}, "JP": {0: "J", 1: "P"}
+    }
+    for dim in dimensions:
+        model_path = f"models/clf_{dim}.joblib"
+        classifiers[dim] = joblib.load(model_path)
+    print("Tải model hoàn tất.")
+
+    # --- 2. Tải dữ liệu test ---
+    print("\nĐang tải và xử lý dữ liệu test...")
+    _, _, test_df = load_datasets("data/mbti.csv")
+
+    # --- 3. Thực hiện dự đoán và tìm lỗi ---
+    print("Bắt đầu dự đoán trên tập test để tìm lỗi...")
+    error_records = []
+    for index, row in test_df.iterrows():
+        text = row['posts']
+        true_mbti = row['type']
+        
+        embedding = encoder_model.encode([text])
+        predicted_mbti = ""
+        for dim in dimensions:
+            clf = classifiers[dim]
+            pred_label = clf.predict(embedding)[0]
+            mbti_char = label_map[dim][pred_label]
+            predicted_mbti += mbti_char
+            
+        if predicted_mbti != true_mbti:
+            mismatched_dims = [dimensions[i] for i, dim_char in enumerate(predicted_mbti) if dim_char != true_mbti[i]]
+            error_records.append({
+                "Original Text": text,
+                "True MBTI": true_mbti,
+                "Predicted MBTI": predicted_mbti,
+                "Mismatched Dimensions": ", ".join(mismatched_dims)
+            })
+            if len(error_records) >= num_errors_to_show:
+                break
+    
+    # --- 4. Hiển thị kết quả phân tích lỗi ---
+    if not error_records:
+        print("\nChúc mừng! Không tìm thấy lỗi nào trong các mẫu đã kiểm tra.")
+        return
+
+    print(f"\n--- Phân tích {len(error_records)} mẫu dự đoán sai đầu tiên ---")
+    error_df = pd.DataFrame(error_records)
+    pd.set_option('display.max_colwidth', None)
+    pd.set_option('display.width', 200)
+    print(error_df)
+    print("="*50)
+    print("KẾT THÚC PHÂN TÍCH LỖI")
+    print("="*50)
+
 
 def evaluate_and_plot(log_file="reports/run_logs.json"):
     """
-    Đọc file log tổng hợp, hiển thị kết quả và vẽ các biểu đồ cần thiết.
+    Đọc file log, hiển thị kết quả, vẽ biểu đồ và chạy phân tích lỗi.
     """
     # 1. Load log
     with open(log_file, "r", encoding="utf-8") as f:
@@ -60,24 +132,22 @@ def evaluate_and_plot(log_file="reports/run_logs.json"):
             print(f"Không có dữ liệu dự đoán ('y_true', 'y_pred') cho {label}.")
             continue
 
-        # Lấy xác suất của lớp 1 (positive class)
-        # y_prob có thể là list của list [[prob_0, prob_1], ...]
         if y_prob and isinstance(y_prob[0], list) and len(y_prob[0]) > 1:
             y_prob_positive = [p[1] for p in y_prob]
         else:
-            y_prob_positive = None # Logistic Regression có thể không trả về proba
+            y_prob_positive = None
 
-        # In classification report
         print("Classification Report trên tập Test:")
         print(classification_report(y_true, y_pred))
 
-        # Vẽ Confusion Matrix
         ConfusionMatrixDisplay.from_predictions(y_true, y_pred, cmap=plt.cm.Blues)
         plt.title(f"Confusion Matrix cho [{label}]")
         plt.show()
 
-        # Vẽ Calibration Curve
         if y_prob_positive:
             plot_calibration_curve(y_true, y_prob_positive, f"Calibration Curve cho [{label}]")
+    
+    # --- 4. GỌI HÀM PHÂN TÍCH LỖI ---
+    perform_error_analysis()
 
     return summary_df

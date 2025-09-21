@@ -1,28 +1,36 @@
-# src/train.py
 import os
 import json
-import numpy as np
+import joblib
 from sklearn.metrics import accuracy_score, f1_score
 from src.models import get_classifier
-import joblib
 
 def encode_dataset(model, df):
     """Encode text posts thành vector embeddings"""
+    print(f"Encoding {len(df)} samples...")
     return model.encode(df["posts"].tolist(), show_progress_bar=True)
 
-def train_and_log(model, df_train, df_val, df_test, label, log_path, seed=42):
+def train_and_log(model, df_train, df_val, df_test, label, classifier_config, log_path, seed=42):
     """
-    Train + log kết quả cho từng label MBTI.
-    Tự động gọi get_classifier(label).
+    Train + log kết quả cho từng label MBTI, nhận config cho classifier.
     """
+    print(f"\n--- Bắt đầu huấn luyện cho khía cạnh [{label}] ---")
+    
     # --- 1. Encode data ---
     X_train, y_train = encode_dataset(model, df_train), df_train[label].values
     X_val, y_val = encode_dataset(model, df_val), df_val[label].values
     X_test, y_test = encode_dataset(model, df_test), df_test[label].values
 
-    # --- 2. Init classifier ---
-    clf = get_classifier(label, seed=seed)  # nhớ sửa models.py cho khớp
+    # --- 2. Init classifier từ config ---
+    clf = get_classifier(classifier_config, seed=seed)
+    print(f"Đã khởi tạo classifier: {clf}")
+    
     clf.fit(X_train, y_train)
+
+    # --- Lưu model đã huấn luyện ---
+    model_save_path = f"models/clf_{label}.joblib"
+    os.makedirs(os.path.dirname(model_save_path), exist_ok=True)
+    joblib.dump(clf, model_save_path)
+    print(f"Đã lưu model cho [{label}] tại {model_save_path}")
 
     # --- 3. Evaluate ---
     y_val_pred = clf.predict(X_val)
@@ -51,8 +59,5 @@ def train_and_log(model, df_train, df_val, df_test, label, log_path, seed=42):
         json.dump(results, f, indent=2)
 
     print(f"[{label}] Done. Val Acc={results['val_acc']:.3f}, Test Acc={results['test_acc']:.3f}")
-    model_save_path = f"models/clf_{label}.joblib"
-    os.makedirs(os.path.dirname(model_save_path), exist_ok=True)
-    joblib.dump(clf, model_save_path)
-    print(f"Đã lưu model cho [{label}] tại {model_save_path}")
     return results
+
