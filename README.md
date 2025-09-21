@@ -18,8 +18,8 @@ Python 3.10+
 Libraries listed in requirements.txt
 # Installation Guide
 Clone this repository to your machine:
-git clone [YOUR_REPO_URL]
-cd [REPO_NAME]
+``` git clone [YOUR_REPO_URL] ``` 
+```  cd [REPO_NAME] ``` 
 # Create and activate a virtual environment:
 # Create virtual environment
 python -m venv .venv
