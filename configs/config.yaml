@@ -14,6 +14,8 @@ project:
 model:
   # Name of the Sentence Transformer model used for text embedding.
   embedding_model_name: "sentence-transformers/all-MiniLM-L6-v2"
+  # Directory to save the trained classifier models.
+  save_dir: "models"
 
 # --- Data Handling ---
 data:
@@ -25,19 +27,23 @@ data:
 # --- Preprocessing Steps ---
 # These flags control the text normalization process.
 preprocess:
-  lower: true                 # Convert text to lowercase.
-  normalize_url: true         # Replace URLs with a special token.
-  normalize_user: true        # Replace user mentions (@username) with a token.
-  normalize_num: true         # Replace numbers with a token.
-  demojize: true              # Convert emojis to their text descriptions (e.g., 😊 -> :smiling_face:).
+  enabled: false
+  lower: true
+  normalize_url: true
+  normalize_user: true
+  normalize_num: true
+  demojize: true
 
 # --- Classifier Configuration ---
 # Parameters for the Logistic Regression model used for classification.
 classifier:
-  # Type of classifier. Currently using Logistic Regression.
   type: "logreg"
-  # Maximum number of iterations for the solver to converge.
   max_iter: 2000
   # Automatically adjust weights inversely proportional to class frequencies.
-  # Useful for imbalanced datasets.
   class_weight: "balanced"
+
+# --- Reports Configuration ---
+reports:
+  # Directory to save log files and outputs.
+  log_dir: "reports"
+
