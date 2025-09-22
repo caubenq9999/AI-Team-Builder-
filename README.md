@@ -41,7 +41,7 @@ pip install -r requirements.txt
 # How to Use
 # Re-train the models (Optional):
 Open and run the notebooks/notebook.ipynb file.
-This process will re-train the 4 LogisticRegression models from scratch and save them to the models/ directory. You only need to do this if you want to train on new data.
+This process will re-train the 4 LogisticRegression models from scratch and save them to the models/ directory. All parameters for the training process (e.g., max_iter, class_weight for the classifier) are managed in the config.yaml file. You can easily modify these settings before running the notebook to experiment with different configurations. You only need to do this if you want to train on new data or test different model parameters.
 # Run the Web Application:
 Open a terminal in the project's root directory.
 Run the command:
